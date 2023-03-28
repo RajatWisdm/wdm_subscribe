@@ -116,32 +116,32 @@ function wdm_send_mail($email)
     wp_mail($email, $subject, $message, $headers);
 };
 
-function wdm_form_shortcode() { 
+// function wdm_form_shortcode() { 
   
 	
-	$wdm_form = '
-	<form>
-	<div class="mb-3">
-	  <label for="exampleInputEmail1" class="form-label">Email address</label>
-	  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-	  <div id="emailHelp" class="form-text">We will never share your email with anyone else.</div>
-	</div>
-	<button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-	'; 
+// 	$wdm_form = '
+// 	<form>
+// 	<div class="mb-3">
+// 	  <label for="exampleInputEmail1" class="form-label">Email address</label>
+// 	  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+// 	  <div id="emailHelp" class="form-text">We will never share your email with anyone else.</div>
+// 	</div>
+// 	<button type="submit" class="btn btn-primary">Submit</button>
+//   </form>
+// 	'; 
 
 	
 	  
-	// Output needs to be return
-	return $wdm_form;
-	}
+// 	// Output needs to be return
+// 	return $wdm_form;
+// 	}
 	// register shortcode
 	add_shortcode('wdmsub', 'wdm_form_shortcode');
 // register_activation_hook( __FILE__, 'activate_wdm_subscribe' );
 // register_deactivation_hook( __FILE__, 'deactivate_wdm_subscribe' );
 
 
- function wpb_demo_shortcode() { 
+ function wdm_form_shortcode() { 
   
 	// Things that you want to do.
 	$message = '<form method="post">
@@ -153,12 +153,42 @@ function wdm_form_shortcode() {
 	<button type="submit" class="btn btn-primary">Submit</button>
   </form>
 	'; 
+	if (isset($_POST['email'])) {
+        $email = sanitize_email($_POST['email']);
+        $pattern = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
+
+        if (preg_match($pattern, $email)) {
+            if (isset($_POST['submit'])) {
+
+                $subs_emails = get_option('subs_emails');
+
+                if (!$subs_emails) {
+                    $subs_emails = array();
+                }
+
+                if (in_array($email, $subs_emails)) {
+                    echo '<script>alert("You are already subscribed!");</script>';
+                } else {
+                    $subs_emails[] = $email;
+                    update_option('subs_emails', $subs_emails);
+
+                    // Display a success message
+                    echo '<script>alert("You have been subscribed Successfully!");</script>';
+
+                    wdm_send_mail($email);
+                }
+            }
+        } else {
+            //Display Error Message
+            echo '<div class="error"><p>Your email id is not valid! Please try again</p></div>';
+        }
+    }
 	  
 	// Output needs to be return
 	return $message;
 	}
 	// register shortcode
-	add_shortcode('greeting', 'wpb_demo_shortcode');
+	add_shortcode('greeting', 'wdm_form_shortcode');
 	
 	wp_register_style('bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css');
 	wp_enqueue_style('bootstrap');
